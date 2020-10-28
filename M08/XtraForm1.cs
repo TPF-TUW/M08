@@ -3,15 +3,19 @@ using System.Text;
 using System.Windows.Forms;
 using DevExpress.LookAndFeel;
 using DevExpress.Utils.Extensions;
-//using DBConnection;
+using DBConnection;
 using MDS00;
 using System.Drawing;
+using System.Data;
+using DevExpress.XtraGrid.Views.Grid;
+using DevExpress.XtraEditors;
 
 namespace M08
 {
     public partial class XtraForm1 : DevExpress.XtraBars.Ribbon.RibbonForm
     {
-        //private Functionality.Function FUNC = new Functionality.Function();
+        private Functionality.Function FUNC = new Functionality.Function();
+        private string selCode = "";
         public XtraForm1()
         {
             InitializeComponent();
@@ -33,31 +37,88 @@ namespace M08
 
         private void XtraForm1_Load(object sender, EventArgs e)
         {
+            glueLineName.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.Standard;
+            glueLineName.Properties.AcceptEditorTextAsNewValue = DevExpress.Utils.DefaultBoolean.True;
+
             bbiNew.PerformClick();
         }
 
         private void LoadData()
         {
-            //StringBuilder sbSQL = new StringBuilder();
-            //sbSQL.Append("SELECT OIDGParts AS No, GarmentParts, CreatedBy, CreatedDate ");
-            //sbSQL.Append("FROM GarmentParts ");
-            //sbSQL.Append("ORDER BY OIDGParts, GarmentParts ");
-            //new ObjDevEx.setGridControl(gcGarment, gvGarment, sbSQL).getData(false, false, true, true);
+            StringBuilder sbSQL = new StringBuilder();
+            sbSQL.Append("SELECT LN.OIDLINE AS ID, LN.LINENAME, B.Branch, LN.Branch AS BranchID ");
+            sbSQL.Append("FROM   LineNumber AS LN INNER JOIN ");
+            sbSQL.Append("       Branch AS B ON LN.Branch = B.OIDBranch ");
+            sbSQL.Append("ORDER BY LN.OIDLINE ");
+            new ObjDevEx.setGridLookUpEdit(glueLineName, sbSQL, "LINENAME", "LINENAME").getData(true);
+
+            sbSQL.Clear();
+            sbSQL.Append("SELECT OIDUser AS ID, UserName, FullName ");
+            sbSQL.Append("FROM [User] ");
+            sbSQL.Append("ORDER BY UserName ");
+            new ObjDevEx.setSearchLookUpEdit(slueInCharge, sbSQL, "UserName", "ID").getData(true);
+
+            sbSQL.Clear();
+            sbSQL.Append("SELECT OIDBranch AS ID, Branch ");
+            sbSQL.Append("FROM Branch ");
+            sbSQL.Append("ORDER BY OIDBranch ");
+            new ObjDevEx.setGridLookUpEdit(glueBranch, sbSQL, "Branch", "ID").getData(true);
+
+            sbSQL.Clear();
+            sbSQL.Append("SELECT OIDCUST AS ID, Code, ShortName, Name ");
+            sbSQL.Append("FROM Customer ");
+            sbSQL.Append("ORDER BY ShortName ");
+            new ObjDevEx.setSearchLookUpEdit(slueCustomer, sbSQL, "ShortName", "ID").getData(true);
+
+            sbSQL.Clear();
+            sbSQL.Append("SELECT OIDGCATEGORY, CategoryName ");
+            sbSQL.Append("FROM GarmentCategory ");
+            sbSQL.Append("ORDER BY OIDGCATEGORY ");
+            DataTable drCategory = new DBQuery(sbSQL).getDataTable();
+            clbCategory.ValueMember = "OIDGCATEGORY";
+            clbCategory.DisplayMember = "CategoryName";
+            clbCategory.DataSource = drCategory;
+
+            LoadLineCategory();
 
         }
 
         private void NewData()
         {
-            //txeGarment.Text = "";
-            //lblStatus.Text = "* Add Garment";
-            //lblStatus.ForeColor = Color.Green;
+            glueLineName.EditValue = "";
+            lblStatus.Text = "* Add Line";
+            lblStatus.ForeColor = Color.Green;
 
             //txeID.Text = new DBQuery("SELECT CASE WHEN ISNULL(MAX(OIDGParts), '') = '' THEN 1 ELSE MAX(OIDGParts) + 1 END AS NewNo FROM GarmentParts").getString();
+            txeID.Text = "";
 
-            //txeCREATE.Text = "0";
-            //txeDATE.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+            slueInCharge.EditValue = "";
+            glueBranch.EditValue = "";
+            slueCustomer.EditValue = "";
 
-            ////txeID.Focus();
+            txeCREATE.Text = "0";
+            txeCDATE.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+            selCode = "";
+            //txeID.Focus();
+        }
+
+        private void LoadLineCategory()
+        {
+            StringBuilder sbSQL = new StringBuilder();
+            sbSQL.Append("SELECT PL.OIDLine AS LineID, LN.LINENAME AS LineName, PL.OIDUSER AS InChangeID, US.UserName AS InChange, PL.Branch AS BranchID, BN.Branch, PL.OIDCUST AS CustomerID, CUS.ShortName AS Customer, PL.OIDCATEGORY AS CategoryID, GC.CategoryName, PL.CreatedBy, PL.CreatedDate ");
+            sbSQL.Append("FROM ProductionLine AS PL INNER JOIN ");
+            sbSQL.Append("     LineNumber AS LN ON PL.OIDLine = LN.OIDLine INNER JOIN ");
+            sbSQL.Append("     [User] AS US ON PL.OIDUSER = US.OIDUser INNER JOIN ");
+            sbSQL.Append("     Customer AS CUS ON PL.OIDCUST = CUS.OIDCUST INNER JOIN ");
+            sbSQL.Append("     Branch AS BN ON PL.Branch = BN.OIDBranch INNER JOIN ");
+            sbSQL.Append("     GarmentCategory AS GC ON PL.OIDCATEGORY = GC.OIDGCATEGORY ");
+            if (txeID.Text.Trim() != "" && glueBranch.Text.Trim() != "" && slueCustomer.Text.Trim() != "")
+            {
+                sbSQL.Append("WHERE (PL.OIDLine='" + txeID.Text.Trim() + "') AND (PL.Branch='" + glueBranch.EditValue.ToString() + "') AND (PL.OIDCUST='" + slueCustomer.EditValue.ToString() + "') ");
+            }
+            sbSQL.Append("ORDER BY LN.LINENAME, PL.Branch, PL.OIDCATEGORY ");
+            new ObjDevEx.setGridControl(gcLine, gvLine, sbSQL).getData(false, false, false, true);
+
         }
 
         private void bbiNew_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -68,120 +129,292 @@ namespace M08
 
         private void gvGarment_RowCellClick(object sender, DevExpress.XtraGrid.Views.Grid.RowCellClickEventArgs e)
         {
-            //lblStatus.Text = "* Edit Garment";
-            //lblStatus.ForeColor = Color.Red;
+            lblStatus.Text = "* Edit Line";
+            lblStatus.ForeColor = Color.Red;
 
-            //txeID.Text = gvGarment.GetFocusedRowCellValue("No").ToString();
-            //txeGarment.Text = gvGarment.GetFocusedRowCellValue("GarmentParts").ToString();
+            glueLineName.EditValue = gvLine.GetFocusedRowCellValue("LineName").ToString();
+            txeID.Text = gvLine.GetFocusedRowCellValue("LineID").ToString();
+            slueInCharge.EditValue = gvLine.GetFocusedRowCellValue("InChangeID").ToString();
+            glueBranch.EditValue = gvLine.GetFocusedRowCellValue("BranchID").ToString();
+            slueCustomer.EditValue = gvLine.GetFocusedRowCellValue("CustomerID").ToString();
 
-            //txeCREATE.Text = gvGarment.GetFocusedRowCellValue("CreatedBy").ToString();
-            //txeDATE.Text = gvGarment.GetFocusedRowCellValue("CreatedDate").ToString();
+            txeCREATE.Text = gvLine.GetFocusedRowCellValue("CreatedBy").ToString();
+            txeCDATE.Text = gvLine.GetFocusedRowCellValue("CreatedDate").ToString();
         }
 
-        //private bool chkDuplicate()
-        //{
-        //    bool chkDup = true;
-        //    if (txeGarment.Text != "")
-        //    {
-        //        txeGarment.Text = txeGarment.Text.Trim();
-        //        if (txeGarment.Text.Trim() != "" && lblStatus.Text == "* Add Garment")
-        //        {
-        //            StringBuilder sbSQL = new StringBuilder();
-        //            sbSQL.Append("SELECT TOP(1) GarmentParts FROM GarmentParts WHERE (GarmentParts = N'" + txeGarment.Text.Trim() + "') ");
-        //            if (new DBQuery(sbSQL).getString() != "")
-        //            {
-        //                FUNC.msgWarning("Duplicate garment parts. !! Please Change.");
-        //                txeGarment.Text = "";
-        //                chkDup = false;
-        //            }
-        //        }
-        //        else if (txeGarment.Text.Trim() != "" && lblStatus.Text == "* Edit Garment")
-        //        {
-        //            StringBuilder sbSQL = new StringBuilder();
-        //            sbSQL.Append("SELECT TOP(1) OIDGParts ");
-        //            sbSQL.Append("FROM GarmentParts ");
-        //            sbSQL.Append("WHERE (GarmentParts = N'" + txeGarment.Text.Trim() + "') ");
-        //            string strCHK = new DBQuery(sbSQL).getString();
-        //            if (strCHK != "" && strCHK != txeID.Text.Trim())
-        //            {
-        //                FUNC.msgWarning("Duplicate garment parts. !! Please Change.");
-        //                txeGarment.Text = "";
-        //                chkDup = false;
-        //            }
-        //        }
-        //    }
-        //    return chkDup;
-        //}
+        private void glueLineName_EditValueChanged(object sender, EventArgs e)
+        {
 
-        //private void txeGarment_Leave(object sender, EventArgs e)
-        //{
-        //    bool chkDup = chkDuplicate();
-        //    if (chkDup == false)
-        //    {
-        //        txeGarment.Text = "";
-        //        txeGarment.Focus();
-        //    }
-        //}
+        }
 
-        //private void bbiSave_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
-        //{
-        //    if (txeGarment.Text.Trim() == "")
-        //    {
-        //        FUNC.msgWarning("Please input garment parts.");
-        //        txeGarment.Focus();
-        //    }
-        //    else
-        //    {
-        //        txeGarment.Text = txeGarment.Text.Trim();
-        //        bool chkGMP = chkDuplicate();
+        private void glueLineName_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                slueInCharge.Focus();
+            }
+        }
 
-        //        if (chkGMP == true)
-        //        {
-        //            if (FUNC.msgQuiz("Confirm save data ?") == true)
-        //            {
-        //                StringBuilder sbSQL = new StringBuilder();
-        //                string strCREATE = "0";
-        //                if (txeCREATE.Text.Trim() != "")
-        //                {
-        //                    strCREATE = txeCREATE.Text.Trim();
-        //                }
+        private void glueLineName_LostFocus(object sender, EventArgs e)
+        {
+            if (glueLineName.Text.Trim() == "")
+            {
+                lblStatus.Text = "* Add Line";
+                lblStatus.ForeColor = Color.Green;
+                txeID.Text = "";
+            }
 
-        //                sbSQL.Append("IF NOT EXISTS(SELECT OIDGParts FROM GarmentParts WHERE OIDGParts = N'" + txeID.Text.Trim() + "') ");
-        //                sbSQL.Append(" BEGIN ");
-        //                sbSQL.Append("  INSERT INTO GarmentParts(GarmentParts, CreatedBy, CreatedDate) ");
-        //                sbSQL.Append("  VALUES(N'" + txeGarment.Text.Trim() + "', '" + strCREATE + "', GETDATE()) ");
-        //                sbSQL.Append(" END ");
-        //                sbSQL.Append("ELSE ");
-        //                sbSQL.Append(" BEGIN ");
-        //                sbSQL.Append("  UPDATE GarmentParts SET ");
-        //                sbSQL.Append("      GarmentParts = N'" + txeGarment.Text.Trim() + "' ");
-        //                sbSQL.Append("  WHERE(OIDGParts = '" + txeID.Text.Trim() + "') ");
-        //                sbSQL.Append(" END ");
-        //                //MessageBox.Show(sbSQL.ToString());
-        //                if (sbSQL.Length > 0)
-        //                {
-        //                    try
-        //                    {
-        //                        bool chkSAVE = new DBQuery(sbSQL).runSQL();
-        //                        if (chkSAVE == true)
-        //                        {
-        //                            FUNC.msgInfo("Save complete.");
-        //                            bbiNew.PerformClick();
-        //                        }
-        //                    }
-        //                    catch (Exception)
-        //                    { }
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+            if (glueLineName.Text.Trim() != "" && glueLineName.Text.ToUpper().Trim() != selCode)
+            {
+                glueLineName.Text = glueLineName.Text.ToUpper().Trim();
+                selCode = glueLineName.Text;
+                LoadCode(glueLineName.Text);
+                //MessageBox.Show(glueCode.Text);
+            }
+        }
 
-        //private void bbiExcel_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
-        //{
-        //    string pathFile = new ObjSet.Folder(@"C:\MDS\Export\").GetPath() + "GarmentPartsList_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
-        //    gvGarment.ExportToXlsx(pathFile);
-        //    System.Diagnostics.Process.Start(pathFile);
-        //}
+        private void CheckLine()
+        {
+            StringBuilder sbSQL = new StringBuilder();
+            sbSQL.Append("SELECT OIDGCATEGORY, CategoryName ");
+            sbSQL.Append("FROM GarmentCategory ");
+            sbSQL.Append("ORDER BY OIDGCATEGORY ");
+            DataTable drCategory = new DBQuery(sbSQL).getDataTable();
+            clbCategory.ValueMember = "OIDGCATEGORY";
+            clbCategory.DisplayMember = "CategoryName";
+            clbCategory.DataSource = drCategory;
+
+            sbSQL.Clear();
+            sbSQL.Append("SELECT OIDLINE ");
+            sbSQL.Append("FROM LineNumber ");
+            sbSQL.Append("WHERE (LINENAME = N'" + glueLineName.Text.Trim() + "') AND (Branch = '" + glueBranch.EditValue.ToString() + "') ");
+            txeID.Text = new DBQuery(sbSQL).getString();
+            if (txeID.Text.Trim() == "")
+            {
+                lblStatus.Text = "* Add Line";
+                lblStatus.ForeColor = Color.Green;
+            }
+            else
+            {
+                lblStatus.Text = "* Edit Line";
+                lblStatus.ForeColor = Color.Red;
+                LoadCategory();
+            }
+        }
+
+        private void LoadCategory()
+        {
+            //Clear Check Category
+            for (int i = 0; i < clbCategory.ItemCount; i++)
+            {
+                clbCategory.SetItemCheckState(i, CheckState.Unchecked);
+            }
+
+            StringBuilder sbSQL = new StringBuilder();
+            sbSQL.Append("SELECT OIDCATEGORY ");
+            sbSQL.Append("FROM ProductionLine ");
+            sbSQL.Append("WHERE (OIDLine = '" + txeID.Text.Trim() + "') ");
+            sbSQL.Append("AND (Branch = '" + glueBranch.EditValue.ToString() + "') ");
+            sbSQL.Append("AND (OIDCUST = '" + slueCustomer.EditValue.ToString() + "') ");
+            sbSQL.Append("ORDER BY OIDCATEGORY ");
+            DataTable dtQC = new DBQuery(sbSQL).getDataTable();
+
+            foreach (DataRow row in dtQC.Rows)
+            {
+                for (int i = 0; i < clbCategory.ItemCount; i++)
+                {
+                    if (row["OIDCATEGORY"].ToString() == clbCategory.GetItemValue(i).ToString())
+                    {
+                        clbCategory.SetItemCheckState(i, CheckState.Checked);
+                        break;
+                    }
+                }
+            }
+
+            LoadLineCategory();
+        }
+
+        private void LoadCode(string strCODE)
+        {
+            
+
+            string BRANCH = "";
+            if (glueLineName.Properties.View.GetFocusedRowCellValue("BranchID") != null)
+            {
+                BRANCH = glueLineName.Properties.View.GetFocusedRowCellValue("BranchID").ToString();
+            }
+            glueBranch.EditValue = BRANCH;
+
+            CheckLine();
+
+        }
+
+        private void glueLineName_Closed(object sender, DevExpress.XtraEditors.Controls.ClosedEventArgs e)
+        {
+            glueLineName.Focus();
+            slueInCharge.Focus();
+        }
+
+        private void glueLineName_ProcessNewValue(object sender, DevExpress.XtraEditors.Controls.ProcessNewValueEventArgs e)
+        {
+            GridLookUpEdit gridLookup = sender as GridLookUpEdit;
+            if (e.DisplayValue == null) return;
+            string newValue = e.DisplayValue.ToString();
+            if (newValue == String.Empty) return;
+        }
+
+        private void glueBranch_EditValueChanged(object sender, EventArgs e)
+        {
+            CheckLine();
+        }
+
+        private void slueCustomer_EditValueChanged(object sender, EventArgs e)
+        {
+            LoadCategory();
+        }
+
+        private void gvLine_RowStyle(object sender, DevExpress.XtraGrid.Views.Grid.RowStyleEventArgs e)
+        {
+            if (sender is GridView)
+            {
+                GridView gView = (GridView)sender;
+                if (!gView.IsValidRowHandle(e.RowHandle)) return;
+                int parent = gView.GetParentRowHandle(e.RowHandle);
+                if (gView.IsGroupRow(parent))
+                {
+                    for (int i = 0; i < gView.GetChildRowCount(parent); i++)
+                    {
+                        if (gView.GetChildRowHandle(parent, i) == e.RowHandle)
+                        {
+                            e.Appearance.BackColor = i % 2 == 0 ? Color.AliceBlue : Color.White;
+                        }
+                    }
+                }
+                else
+                {
+                    e.Appearance.BackColor = e.RowHandle % 2 == 0 ? Color.AliceBlue : Color.White;
+                }
+            }
+        }
+
+        private void bbiSave_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            if (glueLineName.Text.Trim() == "")
+            {
+                FUNC.msgWarning("Please input line name.");
+                glueLineName.Focus();
+            }
+            else if (slueInCharge.Text.Trim() == "")
+            {
+                FUNC.msgWarning("Please select in-charge.");
+                slueInCharge.Focus();
+            }
+            else if (glueBranch.Text.Trim() == "")
+            {
+                FUNC.msgWarning("Please select branch.");
+                glueBranch.Focus();
+            }
+            else if (slueCustomer.Text.Trim() == "")
+            {
+                FUNC.msgWarning("Please select customer.");
+                slueCustomer.Focus();
+            }
+            else
+            {
+                StringBuilder sbSQL = new StringBuilder();
+
+                string strCREATE = "0";
+                if (txeCREATE.Text.Trim() != "")
+                {
+                    strCREATE = txeCREATE.Text.Trim();
+                }
+
+                //******** save LineNumber table ************
+                string LINENAME = glueLineName.Text.ToUpper().Trim();
+                string BRANCHID = glueBranch.EditValue.ToString();
+
+                if (lblStatus.Text == "* Add Line")
+                {
+                    sbSQL.Append(" INSERT INTO LineNumber(LINENAME, Branch) ");
+                    sbSQL.Append("  VALUES(N'" + LINENAME + "', '" + BRANCHID + "') ");
+                }
+                else if (lblStatus.Text == "* Edit Line")
+                {
+                    sbSQL.Append(" UPDATE LineNumber SET ");
+                    sbSQL.Append("  LINENAME = N'" + LINENAME + "', Branch = '" + BRANCHID + "' ");
+                    sbSQL.Append(" WHERE (OIDLINE = '" + txeID.Text.Trim() + "') ");
+                }
+
+                if (sbSQL.Length > 0)
+                {
+                    try
+                    {
+                        bool saveLine = new DBQuery(sbSQL).runSQL();
+                        if (saveLine == true)
+                        {
+                            sbSQL.Clear();
+                            sbSQL.Append("SELECT OIDLINE FROM LineNumber WHERE (LINENAME = N'" + LINENAME + "') AND (Branch = '" + BRANCHID + "') ");
+                            string LINEID = new DBQuery(sbSQL).getString();
+
+                            //******** save ProductionLine table ********
+                            sbSQL.Clear();
+                            string strCATEGORY = "";
+                            int iCQC = 0;
+                            foreach (DataRowView item in clbCategory.CheckedItems)
+                            {
+                                if (iCQC != 0)
+                                {
+                                    strCATEGORY += ", ";
+                                }
+                                strCATEGORY += "'" + item["OIDGCATEGORY"].ToString() + "'";
+                                sbSQL.Append("IF NOT EXISTS(SELECT OIDPDLINE FROM ProductionLine WHERE (OIDLine = '" + LINEID + "') AND (Branch = '" + BRANCHID + "') AND (OIDCUST = '" + slueCustomer.EditValue.ToString() + "') AND (OIDCATEGORY = '" + item["OIDGCATEGORY"].ToString() + "')) ");
+                                sbSQL.Append(" BEGIN ");
+                                sbSQL.Append("  INSERT INTO ProductionLine(OIDLine, OIDUSER, Branch, OIDCUST, OIDCATEGORY, CreatedBy, CreatedDate) ");
+                                sbSQL.Append("  VALUES('" + LINEID + "', '" + slueInCharge.EditValue.ToString() + "', '" + BRANCHID + "', '" + slueCustomer.EditValue.ToString() + "', '" + item["OIDGCATEGORY"].ToString() + "', '" + strCREATE + "', GETDATE()) ");
+                                sbSQL.Append(" END ");
+                                iCQC++;
+                            }
+
+                            if (strCATEGORY == "")
+                            {
+                                sbSQL.Append("DELETE FROM ProductionLine WHERE (OIDLine = '" + LINEID + "') AND (Branch = '" + BRANCHID + "') AND (OIDCUST = '" + slueCustomer.EditValue.ToString() + "')  ");
+                            }
+                            else
+                            {
+                                sbSQL.Append("DELETE FROM ProductionLine WHERE (OIDLine = '" + LINEID + "') AND (Branch = '" + BRANCHID + "') AND (OIDCUST = '" + slueCustomer.EditValue.ToString() + "') AND (OIDCATEGORY NOT IN (" + strCATEGORY + "))  ");
+                            }
+
+                            if (sbSQL.Length > 0)
+                            {
+                                try
+                                {
+                                    bool chkSAVECAT = new DBQuery(sbSQL).runSQL();
+                                    if (chkSAVECAT == true)
+                                    {
+                                        FUNC.msgInfo("Save complete.");
+                                        bbiNew.PerformClick();
+                                    }
+                                }
+                                catch (Exception)
+                                { }
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    { }
+                }
+
+
+            }
+        }
+
+        private void bbiExcel_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            string pathFile = new ObjSet.Folder(@"C:\MDS\Export\").GetPath() + "LineList_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
+            gvLine.ExportToXlsx(pathFile);
+            System.Diagnostics.Process.Start(pathFile);
+        }
+
+
     }
 }
