@@ -148,6 +148,7 @@
             this.ribbonControl.Size = new System.Drawing.Size(994, 160);
             this.ribbonControl.StatusBar = this.ribbonStatusBar;
             this.ribbonControl.ToolbarLocation = DevExpress.XtraBars.Ribbon.RibbonQuickAccessToolbarLocation.Hidden;
+            this.ribbonControl.Click += new System.EventHandler(this.ribbonControl_Click);
             // 
             // bbiPrintPreview
             // 
@@ -462,6 +463,8 @@
             this.gvLine.Name = "gvLine";
             this.gvLine.OptionsBehavior.Editable = false;
             this.gvLine.OptionsBehavior.ReadOnly = true;
+            this.gvLine.OptionsView.EnableAppearanceEvenRow = true;
+            this.gvLine.OptionsView.EnableAppearanceOddRow = true;
             this.gvLine.OptionsView.ShowGroupPanel = false;
             this.gvLine.RowCellClick += new DevExpress.XtraGrid.Views.Grid.RowCellClickEventHandler(this.gvGarment_RowCellClick);
             this.gvLine.RowStyle += new DevExpress.XtraGrid.Views.Grid.RowStyleEventHandler(this.gvLine_RowStyle);
