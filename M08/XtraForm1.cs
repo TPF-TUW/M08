@@ -129,17 +129,7 @@ namespace M08
 
         private void gvGarment_RowCellClick(object sender, DevExpress.XtraGrid.Views.Grid.RowCellClickEventArgs e)
         {
-            lblStatus.Text = "* Edit Line";
-            lblStatus.ForeColor = Color.Red;
-
-            glueLineName.EditValue = gvLine.GetFocusedRowCellValue("LineName").ToString();
-            txeID.Text = gvLine.GetFocusedRowCellValue("LineID").ToString();
-            slueInCharge.EditValue = gvLine.GetFocusedRowCellValue("InChangeID").ToString();
-            glueBranch.EditValue = gvLine.GetFocusedRowCellValue("BranchID").ToString();
-            slueCustomer.EditValue = gvLine.GetFocusedRowCellValue("CustomerID").ToString();
-
-            txeCREATE.Text = gvLine.GetFocusedRowCellValue("CreatedBy").ToString();
-            txeCDATE.Text = gvLine.GetFocusedRowCellValue("CreatedDate").ToString();
+            
         }
 
         private void glueLineName_EditValueChanged(object sender, EventArgs e)
@@ -302,90 +292,92 @@ namespace M08
             }
             else
             {
-                StringBuilder sbSQL = new StringBuilder();
-
-                string strCREATE = "0";
-                if (txeCREATE.Text.Trim() != "")
+                if (FUNC.msgQuiz("Confirm save ?") == true)
                 {
-                    strCREATE = txeCREATE.Text.Trim();
-                }
+                    StringBuilder sbSQL = new StringBuilder();
 
-                //******** save LineNumber table ************
-                string LINENAME = glueLineName.Text.ToUpper().Trim();
-                string BRANCHID = glueBranch.EditValue.ToString();
-
-                if (lblStatus.Text == "* Add Line")
-                {
-                    sbSQL.Append(" INSERT INTO LineNumber(LINENAME, Branch) ");
-                    sbSQL.Append("  VALUES(N'" + LINENAME + "', '" + BRANCHID + "') ");
-                }
-                else if (lblStatus.Text == "* Edit Line")
-                {
-                    sbSQL.Append(" UPDATE LineNumber SET ");
-                    sbSQL.Append("  LINENAME = N'" + LINENAME + "', Branch = '" + BRANCHID + "' ");
-                    sbSQL.Append(" WHERE (OIDLINE = '" + txeID.Text.Trim() + "') ");
-                }
-
-                if (sbSQL.Length > 0)
-                {
-                    try
+                    string strCREATE = "0";
+                    if (txeCREATE.Text.Trim() != "")
                     {
-                        bool saveLine = new DBQuery(sbSQL).runSQL();
-                        if (saveLine == true)
+                        strCREATE = txeCREATE.Text.Trim();
+                    }
+
+                    //******** save LineNumber table ************
+                    string LINENAME = glueLineName.Text.ToUpper().Trim();
+                    string BRANCHID = glueBranch.EditValue.ToString();
+
+                    if (lblStatus.Text == "* Add Line")
+                    {
+                        sbSQL.Append(" INSERT INTO LineNumber(LINENAME, Branch) ");
+                        sbSQL.Append("  VALUES(N'" + LINENAME + "', '" + BRANCHID + "') ");
+                    }
+                    else if (lblStatus.Text == "* Edit Line")
+                    {
+                        sbSQL.Append(" UPDATE LineNumber SET ");
+                        sbSQL.Append("  LINENAME = N'" + LINENAME + "', Branch = '" + BRANCHID + "' ");
+                        sbSQL.Append(" WHERE (OIDLINE = '" + txeID.Text.Trim() + "') ");
+                    }
+
+                    if (sbSQL.Length > 0)
+                    {
+                        try
                         {
-                            sbSQL.Clear();
-                            sbSQL.Append("SELECT OIDLINE FROM LineNumber WHERE (LINENAME = N'" + LINENAME + "') AND (Branch = '" + BRANCHID + "') ");
-                            string LINEID = new DBQuery(sbSQL).getString();
-
-                            //******** save ProductionLine table ********
-                            sbSQL.Clear();
-                            string strCATEGORY = "";
-                            int iCQC = 0;
-                            foreach (DataRowView item in clbCategory.CheckedItems)
+                            bool saveLine = new DBQuery(sbSQL).runSQL();
+                            if (saveLine == true)
                             {
-                                if (iCQC != 0)
+                                sbSQL.Clear();
+                                sbSQL.Append("SELECT OIDLINE FROM LineNumber WHERE (LINENAME = N'" + LINENAME + "') AND (Branch = '" + BRANCHID + "') ");
+                                string LINEID = new DBQuery(sbSQL).getString();
+
+                                //******** save ProductionLine table ********
+                                sbSQL.Clear();
+                                string strCATEGORY = "";
+                                int iCQC = 0;
+                                foreach (DataRowView item in clbCategory.CheckedItems)
                                 {
-                                    strCATEGORY += ", ";
-                                }
-                                strCATEGORY += "'" + item["OIDGCATEGORY"].ToString() + "'";
-                                sbSQL.Append("IF NOT EXISTS(SELECT OIDPDLINE FROM ProductionLine WHERE (OIDLine = '" + LINEID + "') AND (Branch = '" + BRANCHID + "') AND (OIDCUST = '" + slueCustomer.EditValue.ToString() + "') AND (OIDCATEGORY = '" + item["OIDGCATEGORY"].ToString() + "')) ");
-                                sbSQL.Append(" BEGIN ");
-                                sbSQL.Append("  INSERT INTO ProductionLine(OIDLine, OIDUSER, Branch, OIDCUST, OIDCATEGORY, CreatedBy, CreatedDate) ");
-                                sbSQL.Append("  VALUES('" + LINEID + "', '" + slueInCharge.EditValue.ToString() + "', '" + BRANCHID + "', '" + slueCustomer.EditValue.ToString() + "', '" + item["OIDGCATEGORY"].ToString() + "', '" + strCREATE + "', GETDATE()) ");
-                                sbSQL.Append(" END ");
-                                iCQC++;
-                            }
-
-                            if (strCATEGORY == "")
-                            {
-                                sbSQL.Append("DELETE FROM ProductionLine WHERE (OIDLine = '" + LINEID + "') AND (Branch = '" + BRANCHID + "') AND (OIDCUST = '" + slueCustomer.EditValue.ToString() + "')  ");
-                            }
-                            else
-                            {
-                                sbSQL.Append("DELETE FROM ProductionLine WHERE (OIDLine = '" + LINEID + "') AND (Branch = '" + BRANCHID + "') AND (OIDCUST = '" + slueCustomer.EditValue.ToString() + "') AND (OIDCATEGORY NOT IN (" + strCATEGORY + "))  ");
-                            }
-
-                            if (sbSQL.Length > 0)
-                            {
-                                try
-                                {
-                                    bool chkSAVECAT = new DBQuery(sbSQL).runSQL();
-                                    if (chkSAVECAT == true)
+                                    if (iCQC != 0)
                                     {
-                                        FUNC.msgInfo("Save complete.");
-                                        bbiNew.PerformClick();
+                                        strCATEGORY += ", ";
                                     }
+                                    strCATEGORY += "'" + item["OIDGCATEGORY"].ToString() + "'";
+                                    sbSQL.Append("IF NOT EXISTS(SELECT OIDPDLINE FROM ProductionLine WHERE (OIDLine = '" + LINEID + "') AND (Branch = '" + BRANCHID + "') AND (OIDCUST = '" + slueCustomer.EditValue.ToString() + "') AND (OIDCATEGORY = '" + item["OIDGCATEGORY"].ToString() + "')) ");
+                                    sbSQL.Append(" BEGIN ");
+                                    sbSQL.Append("  INSERT INTO ProductionLine(OIDLine, OIDUSER, Branch, OIDCUST, OIDCATEGORY, CreatedBy, CreatedDate) ");
+                                    sbSQL.Append("  VALUES('" + LINEID + "', '" + slueInCharge.EditValue.ToString() + "', '" + BRANCHID + "', '" + slueCustomer.EditValue.ToString() + "', '" + item["OIDGCATEGORY"].ToString() + "', '" + strCREATE + "', GETDATE()) ");
+                                    sbSQL.Append(" END ");
+                                    iCQC++;
                                 }
-                                catch (Exception)
-                                { }
+
+                                if (strCATEGORY == "")
+                                {
+                                    sbSQL.Append("DELETE FROM ProductionLine WHERE (OIDLine = '" + LINEID + "') AND (Branch = '" + BRANCHID + "') AND (OIDCUST = '" + slueCustomer.EditValue.ToString() + "')  ");
+                                }
+                                else
+                                {
+                                    sbSQL.Append("DELETE FROM ProductionLine WHERE (OIDLine = '" + LINEID + "') AND (Branch = '" + BRANCHID + "') AND (OIDCUST = '" + slueCustomer.EditValue.ToString() + "') AND (OIDCATEGORY NOT IN (" + strCATEGORY + "))  ");
+                                }
+
+                                if (sbSQL.Length > 0)
+                                {
+                                    try
+                                    {
+                                        bool chkSAVECAT = new DBQuery(sbSQL).runSQL();
+                                        if (chkSAVECAT == true)
+                                        {
+                                            FUNC.msgInfo("Save complete.");
+                                            bbiNew.PerformClick();
+                                        }
+                                    }
+                                    catch (Exception)
+                                    { }
+                                }
                             }
                         }
+                        catch (Exception)
+                        { }
                     }
-                    catch (Exception)
-                    { }
+
                 }
-
-
             }
         }
 
@@ -399,6 +391,27 @@ namespace M08
         private void ribbonControl_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void gvLine_RowClick(object sender, RowClickEventArgs e)
+        {
+            lblStatus.Text = "* Edit Line";
+            lblStatus.ForeColor = Color.Red;
+
+            string strLineName = gvLine.GetFocusedRowCellValue("LineName").ToString();
+            string strLineID = gvLine.GetFocusedRowCellValue("LineID").ToString();
+            string strInChargeID = gvLine.GetFocusedRowCellValue("InChangeID").ToString();
+            string strBranchID = gvLine.GetFocusedRowCellValue("BranchID").ToString();
+            string CusID = gvLine.GetFocusedRowCellValue("CustomerID").ToString();
+
+            glueLineName.EditValue = strLineName;
+            txeID.Text = strLineID;
+            slueInCharge.EditValue = strInChargeID;
+            glueBranch.EditValue = strBranchID;
+            slueCustomer.EditValue = CusID;
+
+            txeCREATE.Text = gvLine.GetFocusedRowCellValue("CreatedBy").ToString();
+            txeCDATE.Text = gvLine.GetFocusedRowCellValue("CreatedDate").ToString();
         }
     }
 }
