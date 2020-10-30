@@ -292,7 +292,7 @@ namespace M08
             }
             else
             {
-                if (FUNC.msgQuiz("Confirm save ?") == true)
+                if (FUNC.msgQuiz("Confirm save data ?") == true)
                 {
                     StringBuilder sbSQL = new StringBuilder();
 
