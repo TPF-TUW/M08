@@ -413,5 +413,15 @@ namespace M08
             txeCREATE.Text = gvLine.GetFocusedRowCellValue("CreatedBy").ToString();
             txeCDATE.Text = gvLine.GetFocusedRowCellValue("CreatedDate").ToString();
         }
+
+        private void bbiPrintPreview_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            gcLine.ShowPrintPreview();
+        }
+
+        private void bbiPrint_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            gcLine.Print();
+        }
     }
 }
