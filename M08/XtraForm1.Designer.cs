@@ -489,6 +489,7 @@
             this.glueLineName.Closed += new DevExpress.XtraEditors.Controls.ClosedEventHandler(this.glueLineName_Closed);
             this.glueLineName.EditValueChanged += new System.EventHandler(this.glueLineName_EditValueChanged);
             this.glueLineName.KeyDown += new System.Windows.Forms.KeyEventHandler(this.glueLineName_KeyDown);
+            this.glueLineName.Leave += new System.EventHandler(this.glueLineName_Leave);
             this.glueLineName.LostFocus += new System.EventHandler(this.glueLineName_LostFocus);
             // 
             // gridLookUpEdit2View

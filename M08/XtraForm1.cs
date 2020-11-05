@@ -147,20 +147,7 @@ namespace M08
 
         private void glueLineName_LostFocus(object sender, EventArgs e)
         {
-            if (glueLineName.Text.Trim() == "")
-            {
-                lblStatus.Text = "* Add Line";
-                lblStatus.ForeColor = Color.Green;
-                txeID.Text = "";
-            }
-
-            if (glueLineName.Text.Trim() != "" && glueLineName.Text.ToUpper().Trim() != selCode)
-            {
-                glueLineName.Text = glueLineName.Text.ToUpper().Trim();
-                selCode = glueLineName.Text;
-                LoadCode(glueLineName.Text);
-                //MessageBox.Show(glueCode.Text);
-            }
+            
         }
 
         private void CheckLine()
@@ -422,6 +409,24 @@ namespace M08
         private void bbiPrint_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             gcLine.Print();
+        }
+
+        private void glueLineName_Leave(object sender, EventArgs e)
+        {
+            if (glueLineName.Text.Trim() == "")
+            {
+                lblStatus.Text = "* Add Line";
+                lblStatus.ForeColor = Color.Green;
+                txeID.Text = "";
+            }
+
+            if (glueLineName.Text.Trim() != "" && glueLineName.Text.ToUpper().Trim() != selCode)
+            {
+                glueLineName.Text = glueLineName.Text.ToUpper().Trim();
+                selCode = glueLineName.Text;
+                LoadCode(glueLineName.Text);
+                //MessageBox.Show(glueCode.Text);
+            }
         }
     }
 }
