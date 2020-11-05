@@ -382,6 +382,7 @@ namespace M08
 
         private void gvLine_RowClick(object sender, RowClickEventArgs e)
         {
+            if (gvLine.IsFilterRow(e.RowHandle)) return;
             lblStatus.Text = "* Edit Line";
             lblStatus.ForeColor = Color.Red;
 
