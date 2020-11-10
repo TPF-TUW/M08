@@ -57,8 +57,6 @@
             this.clbCategory = new DevExpress.XtraEditors.CheckedListBoxControl();
             this.slueCustomer = new DevExpress.XtraEditors.SearchLookUpEdit();
             this.searchLookUpEdit2View = new DevExpress.XtraGrid.Views.Grid.GridView();
-            this.glueBranch = new DevExpress.XtraEditors.GridLookUpEdit();
-            this.gridLookUpEdit1View = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.slueInCharge = new DevExpress.XtraEditors.SearchLookUpEdit();
             this.searchLookUpEdit1View = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.lblStatus = new DevExpress.XtraEditors.LabelControl();
@@ -69,6 +67,8 @@
             this.gvLine = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.glueLineName = new DevExpress.XtraEditors.GridLookUpEdit();
             this.gridLookUpEdit2View = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.glueBranch = new DevExpress.XtraEditors.SearchLookUpEdit();
+            this.gridView1 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.Root = new DevExpress.XtraLayout.LayoutControlGroup();
             this.layoutControlGroup1 = new DevExpress.XtraLayout.LayoutControlGroup();
             this.layoutControlItem1 = new DevExpress.XtraLayout.LayoutControlItem();
@@ -89,8 +89,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.clbCategory)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.slueCustomer.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.searchLookUpEdit2View)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.glueBranch.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridLookUpEdit1View)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.slueInCharge.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.searchLookUpEdit1View)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txeCDATE.Properties)).BeginInit();
@@ -100,6 +98,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.gvLine)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.glueLineName.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridLookUpEdit2View)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.glueBranch.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Root)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControlGroup1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem1)).BeginInit();
@@ -318,7 +318,6 @@
             // 
             this.layoutControl1.Controls.Add(this.clbCategory);
             this.layoutControl1.Controls.Add(this.slueCustomer);
-            this.layoutControl1.Controls.Add(this.glueBranch);
             this.layoutControl1.Controls.Add(this.slueInCharge);
             this.layoutControl1.Controls.Add(this.lblStatus);
             this.layoutControl1.Controls.Add(this.txeCDATE);
@@ -326,6 +325,7 @@
             this.layoutControl1.Controls.Add(this.txeID);
             this.layoutControl1.Controls.Add(this.gcLine);
             this.layoutControl1.Controls.Add(this.glueLineName);
+            this.layoutControl1.Controls.Add(this.glueBranch);
             this.layoutControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layoutControl1.Location = new System.Drawing.Point(0, 160);
             this.layoutControl1.Name = "layoutControl1";
@@ -364,27 +364,6 @@
             this.searchLookUpEdit2View.Name = "searchLookUpEdit2View";
             this.searchLookUpEdit2View.OptionsSelection.EnableAppearanceFocusedCell = false;
             this.searchLookUpEdit2View.OptionsView.ShowGroupPanel = false;
-            // 
-            // glueBranch
-            // 
-            this.glueBranch.Location = new System.Drawing.Point(89, 76);
-            this.glueBranch.MenuManager = this.ribbonControl;
-            this.glueBranch.Name = "glueBranch";
-            this.glueBranch.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
-            this.glueBranch.Properties.NullText = "";
-            this.glueBranch.Properties.PopupView = this.gridLookUpEdit1View;
-            this.glueBranch.Size = new System.Drawing.Size(127, 20);
-            this.glueBranch.StyleController = this.layoutControl1;
-            this.glueBranch.TabIndex = 14;
-            this.glueBranch.EditValueChanged += new System.EventHandler(this.glueBranch_EditValueChanged);
-            // 
-            // gridLookUpEdit1View
-            // 
-            this.gridLookUpEdit1View.FocusRectStyle = DevExpress.XtraGrid.Views.Grid.DrawFocusRectStyle.RowFocus;
-            this.gridLookUpEdit1View.Name = "gridLookUpEdit1View";
-            this.gridLookUpEdit1View.OptionsSelection.EnableAppearanceFocusedCell = false;
-            this.gridLookUpEdit1View.OptionsView.ShowGroupPanel = false;
             // 
             // slueInCharge
             // 
@@ -499,6 +478,27 @@
             this.gridLookUpEdit2View.Name = "gridLookUpEdit2View";
             this.gridLookUpEdit2View.OptionsSelection.EnableAppearanceFocusedCell = false;
             this.gridLookUpEdit2View.OptionsView.ShowGroupPanel = false;
+            // 
+            // glueBranch
+            // 
+            this.glueBranch.Location = new System.Drawing.Point(89, 76);
+            this.glueBranch.MenuManager = this.ribbonControl;
+            this.glueBranch.Name = "glueBranch";
+            this.glueBranch.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.glueBranch.Properties.NullText = "";
+            this.glueBranch.Properties.PopupView = this.gridView1;
+            this.glueBranch.Size = new System.Drawing.Size(127, 20);
+            this.glueBranch.StyleController = this.layoutControl1;
+            this.glueBranch.TabIndex = 14;
+            this.glueBranch.EditValueChanged += new System.EventHandler(this.glueBranch_EditValueChanged);
+            // 
+            // gridView1
+            // 
+            this.gridView1.FocusRectStyle = DevExpress.XtraGrid.Views.Grid.DrawFocusRectStyle.RowFocus;
+            this.gridView1.Name = "gridView1";
+            this.gridView1.OptionsSelection.EnableAppearanceFocusedCell = false;
+            this.gridView1.OptionsView.ShowGroupPanel = false;
             // 
             // Root
             // 
@@ -654,14 +654,13 @@
             this.StatusBar = this.ribbonStatusBar;
             this.Text = "M08 :  Production Line";
             this.Load += new System.EventHandler(this.XtraForm1_Load);
+            this.Shown += new System.EventHandler(this.XtraForm1_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControl1)).EndInit();
             this.layoutControl1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.clbCategory)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.slueCustomer.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.searchLookUpEdit2View)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.glueBranch.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridLookUpEdit1View)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.slueInCharge.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.searchLookUpEdit1View)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txeCDATE.Properties)).EndInit();
@@ -671,6 +670,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.gvLine)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.glueLineName.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridLookUpEdit2View)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.glueBranch.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Root)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControlGroup1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem1)).EndInit();
@@ -733,8 +734,6 @@
         private DevExpress.XtraEditors.CheckedListBoxControl clbCategory;
         private DevExpress.XtraEditors.SearchLookUpEdit slueCustomer;
         private DevExpress.XtraGrid.Views.Grid.GridView searchLookUpEdit2View;
-        private DevExpress.XtraEditors.GridLookUpEdit glueBranch;
-        private DevExpress.XtraGrid.Views.Grid.GridView gridLookUpEdit1View;
         private DevExpress.XtraEditors.SearchLookUpEdit slueInCharge;
         private DevExpress.XtraGrid.Views.Grid.GridView searchLookUpEdit1View;
         private DevExpress.XtraLayout.LayoutControlItem layoutControlItem7;
@@ -744,5 +743,7 @@
         private DevExpress.XtraEditors.GridLookUpEdit glueLineName;
         private DevExpress.XtraGrid.Views.Grid.GridView gridLookUpEdit2View;
         private DevExpress.XtraLayout.LayoutControlItem layoutControlItem11;
+        private DevExpress.XtraEditors.SearchLookUpEdit glueBranch;
+        private DevExpress.XtraGrid.Views.Grid.GridView gridView1;
     }
 }

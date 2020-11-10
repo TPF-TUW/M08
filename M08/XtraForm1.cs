@@ -62,7 +62,7 @@ namespace M08
             sbSQL.Append("SELECT OIDBranch AS ID, Branch ");
             sbSQL.Append("FROM Branch ");
             sbSQL.Append("ORDER BY OIDBranch ");
-            new ObjDevEx.setGridLookUpEdit(glueBranch, sbSQL, "Branch", "ID").getData(true);
+            new ObjDevEx.setSearchLookUpEdit(glueBranch, sbSQL, "Branch", "ID").getData(true);
 
             sbSQL.Clear();
             sbSQL.Append("SELECT OIDCUST AS ID, Code, ShortName, Name ");
@@ -113,7 +113,7 @@ namespace M08
             sbSQL.Append("     Branch AS BN ON PL.Branch = BN.OIDBranch INNER JOIN ");
             sbSQL.Append("     GarmentCategory AS GC ON PL.OIDCATEGORY = GC.OIDGCATEGORY ");
             sbSQL.Append("WHERE (PL.OIDLine <> '') ");
-            if (txeID.Text.Trim() != "")
+            if (glueLineName.Text.Trim() != "")
             {
                 sbSQL.Append("AND (PL.OIDLine='" + txeID.Text.Trim() + "') ");
             }
@@ -130,14 +130,16 @@ namespace M08
                 sbSQL.Append("AND (PL.OIDCUST='" + slueCustomer.EditValue.ToString() + "') ");
             }
             sbSQL.Append("ORDER BY LN.LINENAME, PL.Branch, PL.OIDCATEGORY ");
+            //MessageBox.Show(sbSQL.ToString());
             new ObjDevEx.setGridControl(gcLine, gvLine, sbSQL).getData(false, false, false, true);
 
         }
 
         private void bbiNew_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            LoadData();
             NewData();
+            LoadData();
+            
         }
 
         private void gvGarment_RowCellClick(object sender, DevExpress.XtraGrid.Views.Grid.RowCellClickEventArgs e)
@@ -179,7 +181,15 @@ namespace M08
             sbSQL.Clear();
             sbSQL.Append("SELECT OIDLINE ");
             sbSQL.Append("FROM LineNumber ");
-            sbSQL.Append("WHERE (LINENAME = N'" + glueLineName.Text.Trim() + "') AND (Branch = '" + glueBranch.EditValue.ToString() + "') ");
+            sbSQL.Append("WHERE (OIDLINE <> '') ");
+            if (glueLineName.Text.Trim() != "")
+            {
+                sbSQL.Append("AND (LINENAME = N'" + glueLineName.Text.Trim() + "') ");
+            }
+            if (glueBranch.Text.Trim() != "")
+            {
+                sbSQL.Append("AND (Branch = '" + glueBranch.EditValue.ToString() + "') ");
+            }
             txeID.Text = new DBQuery(sbSQL).getString();
             if (txeID.Text.Trim() == "")
             {
@@ -206,7 +216,7 @@ namespace M08
             sbSQL.Append("SELECT OIDCATEGORY ");
             sbSQL.Append("FROM ProductionLine ");
             sbSQL.Append("WHERE (OIDCATEGORY <> '') ");
-            if (txeID.Text.Trim() != "")
+            if (glueLineName.Text.Trim() != "")
             {
                 sbSQL.Append("AND (OIDLine = '" + txeID.Text.Trim() + "') ");
             }
@@ -464,6 +474,11 @@ namespace M08
         private void slueInCharge_EditValueChanged(object sender, EventArgs e)
         {
             LoadCategory();
+        }
+
+        private void XtraForm1_Shown(object sender, EventArgs e)
+        {
+            bbiNew.PerformClick();
         }
     }
 }
