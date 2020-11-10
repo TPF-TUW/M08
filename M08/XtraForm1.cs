@@ -117,6 +117,10 @@ namespace M08
             {
                 sbSQL.Append("AND (PL.OIDLine='" + txeID.Text.Trim() + "') ");
             }
+            if (slueInCharge.Text.Trim() != "")
+            {
+                sbSQL.Append("AND (PL.OIDUSER = '" + slueInCharge.EditValue.ToString() + "') ");
+            }
             if (glueBranch.Text.Trim() != "")
             {
                 sbSQL.Append("AND (PL.Branch='" + glueBranch.EditValue.ToString() + "') ");
@@ -205,6 +209,10 @@ namespace M08
             if (txeID.Text.Trim() != "")
             {
                 sbSQL.Append("AND (OIDLine = '" + txeID.Text.Trim() + "') ");
+            }
+            if (slueInCharge.Text.Trim() != "")
+            {
+                sbSQL.Append("AND (OIDUSER = '" + slueInCharge.EditValue.ToString() + "') ");
             }
             if (glueBranch.Text.Trim() != "")
             {
