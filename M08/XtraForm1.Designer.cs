@@ -398,6 +398,7 @@
             this.slueInCharge.Size = new System.Drawing.Size(127, 20);
             this.slueInCharge.StyleController = this.layoutControl1;
             this.slueInCharge.TabIndex = 13;
+            this.slueInCharge.EditValueChanged += new System.EventHandler(this.slueInCharge_EditValueChanged);
             // 
             // searchLookUpEdit1View
             // 
