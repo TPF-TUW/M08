@@ -46,9 +46,9 @@ namespace M08
         private void LoadData()
         {
             StringBuilder sbSQL = new StringBuilder();
-            sbSQL.Append("SELECT LN.OIDLINE AS ID, LN.LINENAME, B.Branch, LN.Branch AS BranchID ");
+            sbSQL.Append("SELECT LN.OIDLINE AS ID, LN.LINENAME, B.Name AS Branch, LN.Branch AS BranchID ");
             sbSQL.Append("FROM   LineNumber AS LN INNER JOIN ");
-            sbSQL.Append("       Branch AS B ON LN.Branch = B.OIDBranch ");
+            sbSQL.Append("       Branchs AS B ON LN.Branch = B.OIDBranch ");
             sbSQL.Append("ORDER BY LN.OIDLINE ");
             new ObjDevEx.setGridLookUpEdit(glueLineName, sbSQL, "LINENAME", "LINENAME").getData(true);
 
@@ -59,8 +59,8 @@ namespace M08
             new ObjDevEx.setSearchLookUpEdit(slueInCharge, sbSQL, "UserName", "ID").getData(true);
 
             sbSQL.Clear();
-            sbSQL.Append("SELECT OIDBranch AS ID, Branch ");
-            sbSQL.Append("FROM Branch ");
+            sbSQL.Append("SELECT OIDBranch AS ID, Name AS Branch ");
+            sbSQL.Append("FROM Branchs ");
             sbSQL.Append("ORDER BY OIDBranch ");
             new ObjDevEx.setGridLookUpEdit(glueBranch, sbSQL, "Branch", "ID").getData(true);
 
@@ -105,12 +105,12 @@ namespace M08
         private void LoadLineCategory()
         {
             StringBuilder sbSQL = new StringBuilder();
-            sbSQL.Append("SELECT PL.OIDLine AS LineID, LN.LINENAME AS LineName, PL.OIDUSER AS InChangeID, US.UserName AS InChange, PL.Branch AS BranchID, BN.Branch, PL.OIDCUST AS CustomerID, CUS.ShortName AS Customer, PL.OIDCATEGORY AS CategoryID, GC.CategoryName, PL.CreatedBy, PL.CreatedDate ");
+            sbSQL.Append("SELECT PL.OIDLine AS LineID, LN.LINENAME AS LineName, PL.OIDUSER AS InChangeID, US.UserName AS InChange, PL.Branch AS BranchID, BN.Name AS Branch, PL.OIDCUST AS CustomerID, CUS.ShortName AS Customer, PL.OIDCATEGORY AS CategoryID, GC.CategoryName, PL.CreatedBy, PL.CreatedDate ");
             sbSQL.Append("FROM ProductionLine AS PL INNER JOIN ");
             sbSQL.Append("     LineNumber AS LN ON PL.OIDLine = LN.OIDLine INNER JOIN ");
             sbSQL.Append("     [User] AS US ON PL.OIDUSER = US.OIDUser INNER JOIN ");
             sbSQL.Append("     Customer AS CUS ON PL.OIDCUST = CUS.OIDCUST INNER JOIN ");
-            sbSQL.Append("     Branch AS BN ON PL.Branch = BN.OIDBranch INNER JOIN ");
+            sbSQL.Append("     Branchs AS BN ON PL.Branch = BN.OIDBranch INNER JOIN ");
             sbSQL.Append("     GarmentCategory AS GC ON PL.OIDCATEGORY = GC.OIDGCATEGORY ");
             if (txeID.Text.Trim() != "" && glueBranch.Text.Trim() != "" && slueCustomer.Text.Trim() != "")
             {
